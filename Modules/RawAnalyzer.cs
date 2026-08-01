@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using Chimera.Models;
 using Chimera.Services;
 using HidSharp;
@@ -19,10 +18,10 @@ namespace Chimera.Modules
 
             DualShockDevice? controller = HidScanner.FindDualShock();
 
-            if(controller == null)
+            if (controller == null)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No DualShock 4 controller found. Make sure it's connect to bluethooth");
+                Console.WriteLine("No DualShock 4 controller found. Make sure it's connected.");
                 Console.ResetColor();
                 return;
             }
@@ -31,11 +30,11 @@ namespace Chimera.Modules
             Console.WriteLine("DualShock 4 controller found!");
             Console.ResetColor();
 
-            Console.WriteLine($"Publisher: {controller.Manufacturer}");
-            Console.WriteLine($"Product: {controller.ProductName}");
-            Console.WriteLine($"Serial Number: {controller.SerialNumber}");
-            Console.WriteLine($"Vendor ID: 0x{controller.Device.VendorID}");
-            Console.WriteLine($"Product ID: 0x{controller.Device.ProductID}");
+            Console.WriteLine($"Publisher     : {controller.Manufacturer}");
+            Console.WriteLine($"Product       : {controller.ProductName}");
+            Console.WriteLine($"Serial Number : {controller.SerialNumber}");
+            Console.WriteLine($"Vendor ID     : 0x{controller.Device.VendorID:X4}");
+            Console.WriteLine($"Product ID    : 0x{controller.Device.ProductID:X4}");
 
             HidStream? stream = DualshockConnection.Open(controller);
 
@@ -47,7 +46,9 @@ namespace Chimera.Modules
                 return;
             }
 
-            Console.WriteLine("Waiting for input... Press esc to exit." );
+            Console.WriteLine();
+            Console.WriteLine("Waiting for input... Press ESC to exit.");
+            Console.WriteLine();
 
             byte[] report = new byte[64];
             byte[] previousReport = new byte[64];
@@ -59,17 +60,19 @@ namespace Chimera.Modules
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo key = Console.ReadKey(true);
+
                     if (key.Key == ConsoleKey.Escape)
                     {
                         break;
                     }
                 }
 
-                int bytesRead = stream.Read(report);
+                stream.Read(report);
 
-                List<ByteChange> changes = ChangeDetector.DetectChanges(previousReport, report);
+                List<ByteChange> changes =
+                    ChangeDetector.DetectChanges(previousReport, report);
 
-                List<ByteChange> visibleChanges = new List<ByteChange>();
+                List<ByteChange> visibleChanges = new();
 
                 foreach (ByteChange change in changes)
                 {
@@ -86,25 +89,17 @@ namespace Chimera.Modules
                     continue;
                 }
 
-                
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"Report #{reportCount:D4}");
+                Console.WriteLine($"========== Report #{reportCount:D4} ==========");
                 Console.ResetColor();
 
                 foreach (ByteChange change in visibleChanges)
                 {
-                    if (ReportFilter.ShouldIgnore(change.Index))
-                    {
-                        continue;
-                    }
-
                     Console.ForegroundColor = ConsoleColor.Green;
-
                     Console.WriteLine(
                         $"Byte {change.Index:D2}: {change.PreviousValue:X2} -> {change.CurrentValue:X2}");
 
                     Console.ForegroundColor = ConsoleColor.DarkGray;
-
                     Console.WriteLine(
                         $"    Before: {Convert.ToString(change.PreviousValue, 2).PadLeft(8, '0')}");
 
@@ -112,41 +107,66 @@ namespace Chimera.Modules
                         $"    After : {Convert.ToString(change.CurrentValue, 2).PadLeft(8, '0')}");
 
                     Console.ForegroundColor = ConsoleColor.Yellow;
-
                     Console.WriteLine(
                         $"    XOR   : {Convert.ToString(change.Difference, 2).PadLeft(8, '0')}");
 
+                    Console.ResetColor();
+
+
+                    if (change.Index == 5 &&
+                        DPadAnalyzer.HasChanged(change.PreviousValue, change.CurrentValue))
+                    {
+                        DPadDirection direction =
+                            DPadAnalyzer.GetDirection(change.CurrentValue);
+
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"    DPad  : {direction}");
+                        Console.ResetColor();
+                    }
+
+
                     List<int> changedBits =
                         BitAnalyzer.GetChangedBits(change.Difference);
-                    
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                    Console.Write("Bits: ");
 
                     foreach (int bit in changedBits)
                     {
-                        Console.Write($"{bit} ");
-                        string? button = DualShockMapper.GetButtonName(change.Index, bit);
-                        if (button != null)
+                     
+                        if (change.Index == 5 && bit < 4)
                         {
-                            bool pressed = (change.CurrentValue & (1 << bit)) != 0;
-                            Console.ForegroundColor = ConsoleColor.Cyan;
-                            Console.WriteLine($"Button: {button} ");
-                            Console.WriteLine($"State: {(pressed ? "Pressed" : "Released")}");
-                            Console.ForegroundColor = ConsoleColor.Magenta;
+                            continue;
                         }
+
+                        string? button =
+                            DualShockMapper.GetButtonName(change.Index, bit);
+
+                        if (button == null)
+                        {
+                            continue;
+                        }
+
+                        bool pressed =
+                            (change.CurrentValue & (1 << bit)) != 0;
+
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.WriteLine($"    Button: {button}");
+
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine($"    State : {(pressed ? "Pressed" : "Released")}");
+
+                        Console.ResetColor();
                     }
 
-                    Console.ResetColor();
                     Console.WriteLine();
                 }
-                
+
                 Array.Copy(report, previousReport, report.Length);
                 reportCount++;
-
             }
 
             stream.Close();
-            Console.WriteLine("Exiting Raw Analyzer...");
+
+            Console.WriteLine();
+            Console.WriteLine("Raw Analyzer closed.");
         }
     }
 }
