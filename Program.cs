@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
-using Chimera.Models;
-using Chimera.Services;
-using HidSharp;
+using System.Collections.Generic;
+using Chimera.Modules;
+
 
 namespace Chimera
 {
@@ -10,103 +9,61 @@ namespace Chimera
     {
         static void Main(string[] args)
         {
-            Console.Title = "Chimera - DualShock Analyzer";
-
-            Console.WriteLine("Buscando DualShock...\n");
-
-            DualShockDevice? controller = HidScanner.FindDualShock();
-
-            if (controller == null)
+            List<IModule> modules = new List<IModule>
             {
-                Console.WriteLine("No se encontró el DualShock.");
-                return;
-            }
-
-            Console.WriteLine("DualShock encontrado.");
-            Console.WriteLine();
-
-            HidStream? stream = DualshockConnection.Open(controller);
-
-            if (stream == null)
-            {
-                Console.WriteLine("No se pudo abrir el stream.");
-                return;
-            }
-
-            byte[] report = new byte[64];
-            byte[] previousReport = new byte[64];
-
-            Stopwatch stopwatch = new Stopwatch();
-
-            Console.WriteLine("Midiendo tiempos...");
-            Console.WriteLine("Presiona ESC para salir.\n");
+                new ButtonAnalyzer(),
+                new RawAnalyzer(),
+                new BenchmarkAnalyzer()
+            };
 
             while (true)
             {
-                if (Console.KeyAvailable)
+                Console.Clear();
+                Console.WriteLine("Welcome to Chimera!");
+
+                Console.WriteLine();
+
+                for(int i = 0; i < modules.Count; i++)
                 {
-                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
-                        break;
+                    Console.WriteLine($"{i + 1}. {modules[i].Name}");
                 }
 
-                stopwatch.Restart();
+                Console.WriteLine();
+                Console.WriteLine("Select 0 to exit...");
+                Console.WriteLine();
 
-                int bytesRead = stream.Read(report);
+                Console.Write("Select a option:");
 
-                stopwatch.Stop();
+                string? input = Console.ReadLine();
 
-                var changes = ChangeDetector.DetectChanges(previousReport, report);
-
-                // Solo mostrar cuando haya cambios reales
-                if (changes.Count > 0)
+                if (!int.TryParse(input, out int option))
                 {
-                    Console.Clear();
-
-                    Console.WriteLine($"Tiempo de lectura HID : {stopwatch.Elapsed.TotalMilliseconds:F3} ms");
-                    Console.WriteLine($"Bytes leídos          : {bytesRead}");
-                    Console.WriteLine($"Cambios detectados    : {changes.Count}");
-                    Console.WriteLine();
-
-                    foreach (ByteChange change in changes)
-                    {
-                        
-                        if (ReportFilter.ShouldIgnore(change.Index))
-                            continue;
-
-                        Console.WriteLine($"Byte {change.Index:D2}");
-
-                        Console.WriteLine($"Anterior : {change.PreviousValue:X2}");
-                        Console.WriteLine($"Actual   : {change.CurrentValue:X2}");
-                        Console.WriteLine($"XOR      : {change.Difference:X2}");
-
-                        var bits = BitAnalyzer.GetChangedBits(change.Difference);
-
-                        Console.Write("Bits     : ");
-
-                        foreach (int bit in bits)
-                        {
-                            string? buttonName = 
-                            DualShockMapper.GetButtonName(change.Index, bit);
-                            
-                            if (buttonName != null)
-                            {
-                                Console.ForegroundColor = ConsoleColor.Cyan;
-                                Console.Write($"Boton : {buttonName} ");
-                                Console.ResetColor();
-                            }
-                            
-                            Console.Write(bit + " ");
-                        }
-
-                        Console.WriteLine();
-                        Console.WriteLine();
-                    }
+                    continue;
                 }
 
-                Array.Copy(report, previousReport, bytesRead);
+                if (option == 0)
+                {
+                    break;
+                }
+
+                if (option < 1 || option > modules.Count)
+                {
+                    Console.WriteLine("Invalid option. Press any key to continue...");
+                    Console.ReadKey();
+                    continue;
+                }
+
+                Console.Clear();
+
+                modules[option - 1].Run();
+
+                Console.WriteLine();
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey(true);
+
+
+
             }
-
-            stream.Close();
         }
     }
 }
