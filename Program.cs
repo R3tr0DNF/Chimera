@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using Chimera.Models;
 using Chimera.Services;
@@ -67,49 +68,65 @@ namespace Chimera
                     }
                 }
 
+                // Leer reporte HID
                 int bytesRead = stream.Read(report);
 
-                Console.Write($"Report #{reportCount:D4} -> ");
+                // Detectar cambios
+                List<ByteChange> changes = ChangeDetector.DetectChanges(previousReport, report);
 
-                for (int i = 0; i < bytesRead; i++)
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"========== Report #{reportCount:D4} ==========");
+                Console.ResetColor();
+
+                if (changes.Count == 0)
                 {
-                    if (report[i] != previousReport[i])
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine("Sin cambios.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    foreach (ByteChange change in changes)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
-                    }
-                    else
-                    {
+
+                        Console.WriteLine(
+                            $"Byte {change.Index:D2}: {change.PreviousValue:X2} -> {change.CurrentValue:X2}");
+
                         Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.WriteLine(
+                            $"    Antes : {Convert.ToString(change.PreviousValue, 2).PadLeft(8, '0')}");
+
+                        Console.WriteLine(
+                            $"    Ahora : {Convert.ToString(change.CurrentValue, 2).PadLeft(8, '0')}");
+
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine(
+                            $"    XOR   : {Convert.ToString(change.Difference, 2).PadLeft(8, '0')}");
+
+                        List<int> changedBits = BitAnalyzer.GetChangedBits(change.Difference);
+                        Console.ForegroundColor = ConsoleColor.Magenta;
+                        Console.Write("Bits: ");
+                        
+                        foreach (int bit in changedBits)
+                        {
+                            Console.Write($"{bit} ");
+                        }
+
+                        Console.WriteLine();
+                        
+                        Console.ResetColor();
+                        Console.WriteLine();
                     }
+                }
 
-                    Console.Write($"{i:D2}:{report[i]:X2} ");
-
+                // Guardar el reporte actual
+                for (int i = 0; i < bytesRead; i++)
+                {
                     previousReport[i] = report[i];
                 }
 
-                Console.ResetColor();
-                Console.WriteLine();
-
                 reportCount++;
-
-                if (reportCount % 30 == 0)
-                {
-                    Console.Clear();
-
-                    Console.WriteLine("=================================");
-                    Console.WriteLine("      Chimera HID Monitor");
-                    Console.WriteLine("=================================\n");
-
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("Verde");
-                    Console.ResetColor();
-                    Console.WriteLine(" = Byte cambiado");
-
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.Write("Gris");
-                    Console.ResetColor();
-                    Console.WriteLine(" = Byte sin cambios\n");
-                }
 
                 Thread.Sleep(100);
             }
