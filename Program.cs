@@ -13,7 +13,8 @@ namespace Chimera
             {
                 new ButtonAnalyzer(),
                 new RawAnalyzer(),
-                new BenchmarkAnalyzer()
+                new BenchmarkAnalyzer(),
+                new InputAnalyzer()
             };
 
             while (true)
