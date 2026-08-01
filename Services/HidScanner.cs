@@ -4,6 +4,9 @@ using Chimera.Models;
 
 namespace Chimera.Services
 {
+
+// esta clase escanea todos los HID conectados a windows y busca un mando de ps4 compatible y
+// lo devuelve como un objeto DualShockDevice si no no devuelve nada
     internal static class HidScanner
     {
         private const int SONY_VENDOR_ID = 0x054C;

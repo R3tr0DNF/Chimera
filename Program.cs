@@ -1,6 +1,7 @@
 ﻿using System;
 using Chimera.Models;
 using Chimera.Services;
+using HidSharp;
 
 namespace Chimera
 {
@@ -33,6 +34,17 @@ namespace Chimera
             Console.WriteLine($"Serie      : {controller.SerialNumber}");
             Console.WriteLine($"Vendor ID  : 0x{controller.Device.VendorID:X4}");
             Console.WriteLine($"Product ID : 0x{controller.Device.ProductID:X4}");
+
+            HidStream? stream = DualshockConnection.Open(controller);
+            if (stream == null)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nNo se pudo abrir el stream del DualShock.");
+                Console.ResetColor();
+                return;
+            }
+
+            Console.WriteLine("\nStream abierto correctamente.");
 
             Console.WriteLine("\nPresiona una tecla para salir...");
             Console.ReadKey();
