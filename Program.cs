@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
+using System.Diagnostics;
 using Chimera.Models;
 using Chimera.Services;
 using HidSharp;
@@ -11,9 +10,7 @@ namespace Chimera
     {
         static void Main(string[] args)
         {
-            Console.Title = "Chimera";
-
-            Console.WriteLine("         Bienvenido a Chimera\n");
+            Console.Title = "Chimera - DualShock Analyzer";
 
             Console.WriteLine("Buscando DualShock...\n");
 
@@ -21,121 +18,84 @@ namespace Chimera
 
             if (controller == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No se encontró ningún DualShock compatible.");
-                Console.ResetColor();
+                Console.WriteLine("No se encontró el DualShock.");
                 return;
             }
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("DualShock encontrado\n");
-            Console.ResetColor();
-
-            Console.WriteLine($"Fabricante : {controller.Manufacturer}");
-            Console.WriteLine($"Producto   : {controller.ProductName}");
-            Console.WriteLine($"Serie      : {controller.SerialNumber}");
-            Console.WriteLine($"Vendor ID  : 0x{controller.Device.VendorID:X4}");
-            Console.WriteLine($"Product ID : 0x{controller.Device.ProductID:X4}");
+            Console.WriteLine("DualShock encontrado.");
+            Console.WriteLine();
 
             HidStream? stream = DualshockConnection.Open(controller);
 
             if (stream == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("\nNo se pudo abrir el stream del DualShock.");
-                Console.ResetColor();
+                Console.WriteLine("No se pudo abrir el stream.");
                 return;
             }
-
-            Console.WriteLine("\nEsperando datos del mando de PS4...");
-            Console.WriteLine("Presiona ESC para salir.\n");
 
             byte[] report = new byte[64];
             byte[] previousReport = new byte[64];
 
-            int reportCount = 0;
+            Stopwatch stopwatch = new Stopwatch();
+
+            Console.WriteLine("Midiendo tiempos...");
+            Console.WriteLine("Presiona ESC para salir.\n");
 
             while (true)
             {
-                // Salir con ESC
                 if (Console.KeyAvailable)
                 {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-
-                    if (key.Key == ConsoleKey.Escape)
-                    {
+                    if (Console.ReadKey(true).Key == ConsoleKey.Escape)
                         break;
-                    }
                 }
 
-                // Leer reporte HID
+                stopwatch.Restart();
+
                 int bytesRead = stream.Read(report);
 
-                // Detectar cambios
-                List<ByteChange> changes = ChangeDetector.DetectChanges(previousReport, report);
+                stopwatch.Stop();
 
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"========== Report #{reportCount:D4} ==========");
-                Console.ResetColor();
+                var changes = ChangeDetector.DetectChanges(previousReport, report);
 
-                if (changes.Count == 0)
+                // Solo mostrar cuando haya cambios reales
+                if (changes.Count > 0)
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkGray;
-                    Console.WriteLine("Sin cambios.");
-                    Console.ResetColor();
-                }
-                else
-                {
+                    Console.Clear();
+
+                    Console.WriteLine($"Tiempo de lectura HID : {stopwatch.Elapsed.TotalMilliseconds:F3} ms");
+                    Console.WriteLine($"Bytes leídos          : {bytesRead}");
+                    Console.WriteLine($"Cambios detectados    : {changes.Count}");
+                    Console.WriteLine();
+
                     foreach (ByteChange change in changes)
                     {
-                        Console.ForegroundColor = ConsoleColor.Green;
+                        if (ReportFilter.ShouldIgnore(change.Index))
+                            continue;
 
-                        Console.WriteLine(
-                            $"Byte {change.Index:D2}: {change.PreviousValue:X2} -> {change.CurrentValue:X2}");
+                        Console.WriteLine($"Byte {change.Index:D2}");
 
-                        Console.ForegroundColor = ConsoleColor.DarkGray;
-                        Console.WriteLine(
-                            $"    Antes : {Convert.ToString(change.PreviousValue, 2).PadLeft(8, '0')}");
+                        Console.WriteLine($"Anterior : {change.PreviousValue:X2}");
+                        Console.WriteLine($"Actual   : {change.CurrentValue:X2}");
+                        Console.WriteLine($"XOR      : {change.Difference:X2}");
 
-                        Console.WriteLine(
-                            $"    Ahora : {Convert.ToString(change.CurrentValue, 2).PadLeft(8, '0')}");
+                        var bits = BitAnalyzer.GetChangedBits(change.Difference);
 
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.WriteLine(
-                            $"    XOR   : {Convert.ToString(change.Difference, 2).PadLeft(8, '0')}");
+                        Console.Write("Bits     : ");
 
-                        List<int> changedBits = BitAnalyzer.GetChangedBits(change.Difference);
-                        Console.ForegroundColor = ConsoleColor.Magenta;
-                        Console.Write("Bits: ");
-                        
-                        foreach (int bit in changedBits)
+                        foreach (int bit in bits)
                         {
-                            Console.Write($"{bit} ");
+                            Console.Write(bit + " ");
                         }
 
                         Console.WriteLine();
-                        
-                        Console.ResetColor();
                         Console.WriteLine();
                     }
                 }
 
-                // Guardar el reporte actual
-                for (int i = 0; i < bytesRead; i++)
-                {
-                    previousReport[i] = report[i];
-                }
-
-                reportCount++;
-
-                Thread.Sleep(100);
+                Array.Copy(report, previousReport, bytesRead);
             }
 
             stream.Close();
-
-            Console.WriteLine("\nConexión cerrada.");
-            Console.WriteLine("Programa finalizado. Presiona cualquier tecla para salir...");
-            Console.ReadKey();
         }
     }
 }
