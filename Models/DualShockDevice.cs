@@ -8,7 +8,6 @@ namespace Chimera.Models
         public string DevicePath {get; set;}
         public string Manufacturer {get; set;}
         public string SerialNumber {get; set;}
-
         public string ProductName {get; set;}
     }
 }
