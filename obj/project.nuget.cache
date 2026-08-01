@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "liXIrE+6iAs=",
+  "dgSpecHash": "4wzH68Hl6bg=",
   "success": true,
   "projectFilePath": "C:\\Users\\R3tr0\\Gamepad\\Chimera\\Chimera.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\R3tr0\\.nuget\\packages\\hidsharp\\2.6.4\\hidsharp.2.6.4.nupkg.sha512"
+  ],
   "logs": []
 }
