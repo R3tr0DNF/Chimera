@@ -69,6 +69,7 @@ namespace Chimera
 
                     foreach (ByteChange change in changes)
                     {
+                        
                         if (ReportFilter.ShouldIgnore(change.Index))
                             continue;
 
@@ -84,6 +85,16 @@ namespace Chimera
 
                         foreach (int bit in bits)
                         {
+                            string? buttonName = 
+                            DualShockMapper.GetButtonName(change.Index, bit);
+                            
+                            if (buttonName != null)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Cyan;
+                                Console.Write($"Boton : {buttonName} ");
+                                Console.ResetColor();
+                            }
+                            
                             Console.Write(bit + " ");
                         }
 

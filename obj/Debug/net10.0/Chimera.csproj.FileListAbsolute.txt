@@ -15,3 +15,4 @@ C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\ref\Chimera.dll
 C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.csproj.AssemblyReference.cache
 C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\HidSharp.dll
 C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.csproj.Up2Date
+C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.sourcelink.json
