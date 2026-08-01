@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Chimera")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ed6bf03c1fb605081561bb8970fd62e3ca1c780f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+389ca1c2a37b1d35ff6da8a4e1798a90f6f5cc4c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Chimera")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Chimera")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
