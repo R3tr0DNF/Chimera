@@ -10,5 +10,10 @@ namespace Chimera.Services.Translator
 
             return (short)Math.Round(xbox);
         }
+
+        public static short ToXboxAxisInverted(byte value)
+        {
+            return (short)-ToXboxAxis(value);
+        }
     }
 }
