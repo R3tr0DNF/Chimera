@@ -4,61 +4,57 @@ using Chimera.Models;
 
 namespace Chimera.Services
 {
-
-// esta clase escanea todos los HID conectados a windows y busca un mando de ps4 compatible y
-// lo devuelve como un objeto DualShockDevice si no no devuelve nada
+    // Scans all HID devices connected to windows and select
+    // the first supported DualShock 4 controller found
     internal static class HidScanner
     {
         private const int SONY_VENDOR_ID = 0x054C;
 
-        private static readonly int[] SupportedProducts =
+        private static readonly HashSet<int> SupportedProducts =
+        [
+            0x05C4, // DualShock 4 USB (CUH-ZCT1)
+            0x09CC, // DualShock 4 Bluetooth
+            0x09CD  // DualShock 4 USB (CUH-ZCT2)
+        ];
+
+        private static string SafeGet(Func<string> getter)
         {
-            0x09CC, // DualShock 4 V1
-            0x09CD  // DualShock 4 V2
-        };
+            try
+            {
+                return getter();
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
 
         public static DualShockDevice? FindDualShock()
         {
-            foreach (var device in DeviceList.Local.GetHidDevices())
+            foreach (HidDevice device in DeviceList.Local.GetHidDevices())
             {
-                // es mando de ps4?
+                // Only Sony devices
                 if (device.VendorID != SONY_VENDOR_ID)
                 {
                     continue;
                 }
 
-                bool supported = false;
-
-                foreach (int productId in SupportedProducts)
-                {
-                    if (productId == device.ProductID)
-                    {
-                        supported = true;
-                        break;
-                    }
-                }
-
-                if (!supported)
+                // Only supported DualShock 4 
+                if (!SupportedProducts.Contains(device.ProductID))
                 {
                     continue;
                 }
 
-                try
+                return new DualShockDevice
                 {
-                    return new DualShockDevice
-                    {
-                        Device = device,
-                        ProductName = device.GetProductName(),
-                        Manufacturer = device.GetManufacturer(),
-                        SerialNumber = device.GetSerialNumber()
-                    };
-                }
-                catch
-                {
-
-                    continue;
-                }
+                    Device = device,
+                    DevicePath = device.DevicePath,
+                    ProductName = SafeGet(device.GetProductName),
+                    Manufacturer = SafeGet(device.GetManufacturer),
+                    SerialNumber = SafeGet(device.GetSerialNumber)
+                };
             }
+
             return null;
         }
     }

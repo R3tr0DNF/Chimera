@@ -12,14 +12,22 @@ namespace Chimera.Services.Conection
 
         public bool Initialize()
         {
+            Console.WriteLine("Searching...");
+
             Device = HidScanner.FindDualShock();
+
+            Console.WriteLine(Device == null? "Device NOT found" : "Device found"); 
 
             if (Device == null)
             {
                 return false;
             }
+
+            Console.WriteLine("Openning stream...");
             
             Stream = DualshockConnection.Open(Device);
+
+            Console.WriteLine(Stream == null? "Stream NOT opened" : "Stream opened"); 
 
             if (Stream == null)
             {

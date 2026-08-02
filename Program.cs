@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Chimera.Models;
 using Chimera.Modules;
+using Chimera.Services;
 using Chimera.Services.Conection;
 
 
@@ -19,6 +20,7 @@ namespace Chimera
                 new PlayMode(),
                 new HidHideTest()
             };
+
 
             DualShockManager dualShock = new DualShockManager();
 
@@ -75,7 +77,6 @@ namespace Chimera
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey(true);
-
 
 
             }
