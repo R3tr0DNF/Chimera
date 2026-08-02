@@ -12,7 +12,6 @@ namespace Chimera
         {
             List<IModule> modules = new List<IModule>
             {
-                new ButtonAnalyzer(),
                 new RawAnalyzer(),
                 new BenchmarkAnalyzer(),
                 new InputAnalyzer(),
