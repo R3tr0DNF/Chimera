@@ -17,3 +17,8 @@ C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\HidSharp.dll
 C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.csproj.Up2Date
 C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.sourcelink.json
 C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Nefarius.ViGEm.Client.dll
+C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Microsoft.Extensions.Logging.Abstractions.dll
+C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Nefarius.Drivers.HidHide.dll
+C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Nefarius.Utilities.DeviceManagement.dll
+C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Nefarius.Vicius.Abstractions.dll

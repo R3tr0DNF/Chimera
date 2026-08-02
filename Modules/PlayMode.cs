@@ -3,6 +3,7 @@ using Chimera.Models;
 using Chimera.Models.Inputs;
 using Chimera.Models.Xbox;
 using Chimera.Services;
+using Chimera.Services.HidHide;
 using Chimera.Services.Input;
 using Chimera.Services.Translator;
 using Chimera.Services.VirtualController;
@@ -46,28 +47,56 @@ namespace Chimera.Modules
 
             InputMonitor monitor = new InputMonitor(stream);
 
+            HidHideManager hidHide = new HidHideManager();
+
+            if (!hidHide.IsInstalled)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("HidHide is not installed");
+                Console.ResetColor();
+
+                stream.Close();
+                return;
+            }
+
+            if (!hidHide.IsOperational)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("HidHide is not working");
+                Console.ResetColor();
+
+                stream.Close();
+                return;
+            }
+
             XboxController xbox = new XboxController();
 
-            xbox.Connect();
-
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Play mode started!! Xbox controller conected succesfully, if you are unsure please check joy.cpl");
-            Console.ResetColor();
-
-            Console.WriteLine("Press ESC to exit... ");
-            Console.WriteLine();
-
-            while (true)
+            try
             {
-                if (Console.KeyAvailable)
-                {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
+                hidHide.RegisterCurrentApplication();
+                hidHide.HideDualShock(dualShock);
+                hidHide.Enable();
 
-                    if (key.Key == ConsoleKey.Escape)
+                xbox.Connect();
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Play mode started!! Xbox controller conected succesfully, if you are unsure please check joy.cpl");
+                Console.ResetColor();
+
+
+                Console.WriteLine("Press ESC to exit... ");
+                Console.WriteLine();
+
+                while (true)
+                {
+                    if (Console.KeyAvailable)
                     {
-                        break;
-                    }
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+
+                        if (key.Key == ConsoleKey.Escape)
+                        {
+                            break;
+                        }
                 }
 
                 if (monitor.TryRead())
@@ -76,13 +105,38 @@ namespace Chimera.Modules
                     xbox.Update(xboxState);
                 }
             }
+        }
+        finally
+            {
+                Console.WriteLine();
+                Console.WriteLine("Cleaning up ...");
 
-            xbox.Disconnect();
-            stream.Close();
+                try
+                {
+                    xbox.Disconnect();
+                }
+                catch{ }
 
-            Console.WriteLine();
-            Console.WriteLine("Play mode closed...");
-            
+                try
+                {
+                    hidHide.UnhideDualShock(dualShock);
+                }
+                catch{}
+
+                try
+                {
+                    hidHide.Disable();
+                }
+                catch{}
+
+                try
+                {
+                    stream.Close();
+                }
+                catch{}
+
+                Console.WriteLine("Play mode closed.");
+            }
 
         }
     }
