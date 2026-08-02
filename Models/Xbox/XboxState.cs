@@ -44,9 +44,5 @@ namespace Chimera.Models.Xbox
 
             DPad = DPadDirection.Neutral;
         }
-
-
-
-
     }
 }
