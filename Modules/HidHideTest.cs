@@ -1,5 +1,6 @@
 using Chimera.Models;
 using Chimera.Services;
+using Chimera.Services.Conection;
 using Chimera.Services.HidHide;
 using Nefarius.Utilities.DeviceManagement;
 using Nefarius.Utilities.DeviceManagement.PnP;
@@ -10,24 +11,17 @@ namespace Chimera.Modules
     {
         public string Name => "HidHide Test";
 
-        public void Run()
+        public void Run(DualShockManager dualShock)
         {
             Console.Clear();
             HidHideManager hidHide = new();
             
 
-            DualShockDevice? dualShock = HidScanner.FindDualShock();
-
-            if (dualShock == null)
-            {
-                Console.WriteLine("Dualshock 4 not found");
-                return;
-            }
 
             hidHide.RegisterCurrentApplication();
             
             Console.WriteLine("Hiding ps4 controller...");
-            hidHide.HideDualShock(dualShock);
+            hidHide.HideDualShock(dualShock.Device!);
 
             Console.WriteLine("Enabling HidHide...");
             hidHide.Enable();
@@ -38,7 +32,7 @@ namespace Chimera.Modules
             Console.ReadKey();
 
             Console.WriteLine("Restoring controller ... ");
-            hidHide.UnhideDualShock(dualShock);
+            hidHide.UnhideDualShock(dualShock.Device!);
 
             hidHide.Disable();
 

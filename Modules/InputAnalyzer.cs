@@ -1,9 +1,7 @@
-using System;
-using Chimera.Models;
 using Chimera.Models.Inputs;
-using Chimera.Services;
+using Chimera.Services.Conection;
 using Chimera.Services.Input;
-using HidSharp;
+
 
 namespace Chimera.Modules
 {
@@ -11,38 +9,12 @@ namespace Chimera.Modules
     {
         public string Name => "Input Analyzer";
 
-        public void Run()
+        public void Run(DualShockManager dualShock)
         {
             Console.Clear();
 
-            Console.WriteLine("Searching for DualShock 4 controller...");
-            Console.WriteLine();
-
-            DualShockDevice? controller = HidScanner.FindDualShock();
-
-            if (controller == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No DualShock 4 controller found.");
-                Console.ResetColor();
-                return;
-            }
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("DualShock 4 controller found!");
-            Console.ResetColor();
-
-            HidStream? stream = DualshockConnection.Open(controller);
-
-            if (stream == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Failed to open controller.");
-                Console.ResetColor();
-                return;
-            }
-
-            InputMonitor monitor = new InputMonitor(stream);
+    
+            InputMonitor monitor = dualShock.Monitor!;
 
             while (true)
             {
@@ -63,8 +35,6 @@ namespace Chimera.Modules
 
                 PrintState(monitor.CurrentState);
             }
-
-            stream.Close();
 
             Console.WriteLine();
             Console.WriteLine("Input Analyzer closed.");

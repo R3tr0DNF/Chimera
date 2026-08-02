@@ -1,10 +1,7 @@
 using System.Diagnostics;
-using System.Resources;
-using Chimera.Models;
-using Chimera.Services;
+using Chimera.Services.Conection;
 using Chimera.Services.Input;
-using HidSharp;
-using HidSharp.Reports;
+
 
 namespace Chimera.Modules
 {
@@ -12,36 +9,11 @@ namespace Chimera.Modules
     {
         public string Name => "Benchmark Analyzer";
 
-        public void Run()
+        public void Run(DualShockManager dualShock)
         {
             Console.Clear();
-            Console.WriteLine("Searching for DualShock 4... ");
 
-            DualShockDevice? dualShock = HidScanner.FindDualShock();
-
-            if (dualShock == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("DualShock 4 not found :c");
-                Console.ResetColor();
-                return;
-            }
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("DualShock 4 found... ");
-            Console.ResetColor();
-
-            HidStream? stream = DualshockConnection.Open(dualShock);
-
-            if (stream == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Failed to open controller :c");
-                Console.ResetColor();
-                return;
-            }
-
-            InputMonitor monitor = new (stream);
+            InputMonitor monitor = dualShock.Monitor!;
 
             Console.WriteLine();
             Console.WriteLine("Benchmark running for 10 seconds ...");
@@ -63,7 +35,6 @@ namespace Chimera.Modules
             }
 
             stopwatch.Stop();
-            stream.Close();
             
             double seconds = stopwatch.Elapsed.TotalSeconds;
             double hz = reports / seconds;

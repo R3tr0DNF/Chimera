@@ -1,14 +1,15 @@
 using Chimera.Modules;
+using Chimera.Services.Conection;
 using Nefarius.ViGEm.Client;
 using Nefarius.ViGEm.Client.Targets;
-using Nefarius.ViGEm.Client.Targets.Xbox360;
+
 
 namespace Chimera.Models 
 {
     internal class ViGEmTest : IModule
     {
         public string Name => "ViGEm Test";
-        public void Run()
+        public void Run(DualShockManager dualShock)
         {
             var client = new ViGEmClient();
             IXbox360Controller controller = client.CreateXbox360Controller();

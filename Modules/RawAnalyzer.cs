@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
 using Chimera.Models;
 using Chimera.Services;
+using Chimera.Services.Conection;
 using HidSharp;
 
 namespace Chimera.Modules
@@ -10,41 +9,12 @@ namespace Chimera.Modules
     {
         public string Name => "Raw Analyzer";
 
-        public void Run()
+        public void Run(DualShockManager dualShock)
         {
             Console.Clear();
 
-            Console.WriteLine("Searching for DualShock 4 controllers...");
-
-            DualShockDevice? controller = HidScanner.FindDualShock();
-
-            if (controller == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No DualShock 4 controller found. Make sure it's connected.");
-                Console.ResetColor();
-                return;
-            }
-
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("DualShock 4 controller found!");
-            Console.ResetColor();
-
-            Console.WriteLine($"Publisher     : {controller.Manufacturer}");
-            Console.WriteLine($"Product       : {controller.ProductName}");
-            Console.WriteLine($"Serial Number : {controller.SerialNumber}");
-            Console.WriteLine($"Vendor ID     : 0x{controller.Device.VendorID:X4}");
-            Console.WriteLine($"Product ID    : 0x{controller.Device.ProductID:X4}");
-
-            HidStream? stream = DualshockConnection.Open(controller);
-
-            if (stream == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Failed to open the controller stream.");
-                Console.ResetColor();
-                return;
-            }
+            DualShockDevice controller = dualShock.Device!;
+            HidStream stream = dualShock.Stream!;
 
             Console.WriteLine();
             Console.WriteLine("Waiting for input... Press ESC to exit.");

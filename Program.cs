@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Chimera.Models;
 using Chimera.Modules;
+using Chimera.Services.Conection;
 
 
 namespace Chimera
@@ -18,6 +19,17 @@ namespace Chimera
                 new PlayMode(),
                 new HidHideTest()
             };
+
+            DualShockManager dualShock = new DualShockManager();
+
+            if (!dualShock.Initialize())
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Can't connect to dualshock 4 :c");
+                Console.ResetColor();
+
+                return;
+            }
 
             while (true)
             {
@@ -58,7 +70,7 @@ namespace Chimera
 
                 Console.Clear();
 
-                modules[option - 1].Run();
+                modules[option - 1].Run(dualShock);
 
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue...");
