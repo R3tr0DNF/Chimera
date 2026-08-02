@@ -14,6 +14,15 @@
             "related": ".pdb;.XML"
           }
         }
+      },
+      "Nefarius.ViGEm.Client/1.21.256": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/Nefarius.ViGEm.Client.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/Nefarius.ViGEm.Client.dll": {}
+        }
       }
     }
   },
@@ -37,11 +46,25 @@
         "lib/netstandard2.0/HidSharp.dll",
         "lib/netstandard2.0/HidSharp.pdb"
       ]
+    },
+    "Nefarius.ViGEm.Client/1.21.256": {
+      "sha512": "VJMO6hkalOZ7YdXTwcR881aTgPZlN7thEs3x6CWE/kEu7SdE5bY7QuDXkR2eqXfPAee4NrxInIAqa45PorpTsA==",
+      "type": "package",
+      "path": "nefarius.vigem.client/1.21.256",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "ViGEm_Icon.png",
+        "lib/netstandard2.0/Nefarius.ViGEm.Client.dll",
+        "nefarius.vigem.client.1.21.256.nupkg.sha512",
+        "nefarius.vigem.client.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "HidSharp >= 2.6.4"
+      "HidSharp >= 2.6.4",
+      "Nefarius.ViGEm.Client >= 1.21.256"
     ]
   },
   "packageFolders": {
@@ -92,6 +115,10 @@
           "HidSharp": {
             "target": "Package",
             "version": "[2.6.4, )"
+          },
+          "Nefarius.ViGEm.Client": {
+            "target": "Package",
+            "version": "[1.21.256, )"
           }
         },
         "imports": [
