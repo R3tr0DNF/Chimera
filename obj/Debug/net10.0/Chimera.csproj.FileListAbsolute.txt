@@ -16,3 +16,4 @@ C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.csproj.AssemblyReferenc
 C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\HidSharp.dll
 C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.csproj.Up2Date
 C:\Users\R3tr0\Gamepad\Chimera\obj\Debug\net10.0\Chimera.sourcelink.json
+C:\Users\R3tr0\Gamepad\Chimera\bin\Debug\net10.0\Nefarius.ViGEm.Client.dll

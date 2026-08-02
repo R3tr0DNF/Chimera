@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Chimera.Models;
 using Chimera.Modules;
 
 
@@ -14,7 +15,8 @@ namespace Chimera
                 new ButtonAnalyzer(),
                 new RawAnalyzer(),
                 new BenchmarkAnalyzer(),
-                new InputAnalyzer()
+                new InputAnalyzer(),
+                new ViGEmTest()
             };
 
             while (true)
