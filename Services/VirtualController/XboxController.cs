@@ -125,10 +125,10 @@ namespace Chimera.Services.VirtualController
         private void UpdateSticks(XboxState state)
         {
             _controller.SetAxisValue(Xbox360Axis.LeftThumbX, AxisTranslator.ToXboxAxis(state.LeftStick.X));
-            _controller.SetAxisValue(Xbox360Axis.LeftThumbY, AxisTranslator.ToXboxAxisInverted(state.LeftStick.Y));
+            _controller.SetAxisValue(Xbox360Axis.LeftThumbY, AxisTranslator.ToXboxAxis(state.LeftStick.Y,true));
 
             _controller.SetAxisValue(Xbox360Axis.RightThumbX, AxisTranslator.ToXboxAxis(state.RightStick.X));
-            _controller.SetAxisValue(Xbox360Axis.RightThumbY, AxisTranslator.ToXboxAxisInverted(state.RightStick.Y));
+            _controller.SetAxisValue(Xbox360Axis.RightThumbY, AxisTranslator.ToXboxAxis(state.RightStick.Y,true));
 
         }
 
