@@ -16,7 +16,7 @@ namespace Chimera
                 new RawAnalyzer(),
                 new BenchmarkAnalyzer(),
                 new InputAnalyzer(),
-                new ViGEmTest()
+                new PlayMode()
             };
 
             while (true)
