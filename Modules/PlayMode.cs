@@ -39,7 +39,7 @@ namespace Chimera.Modules
                 return;
             }
 
-            XboxController xbox = new XboxController();
+            XboxController xbox = new XboxController(dualShock.Stream!);
 
             try
             {

@@ -18,7 +18,8 @@ namespace Chimera
                 new BenchmarkAnalyzer(),
                 new InputAnalyzer(),
                 new PlayMode(),
-                new HidHideTest()
+                new HidHideTest(),
+                new FeedBackTest()
             };
 
 
@@ -37,13 +38,8 @@ namespace Chimera
             {
                 Console.Clear();
                 Console.WriteLine("Welcome to Chimera!");
-
+                Console.WriteLine("");
                 Console.WriteLine();
-
-                for(int i = 0; i < modules.Count; i++)
-                {
-                    Console.WriteLine($"{i + 1}. {modules[i].Name}");
-                }
 
                 Console.WriteLine();
                 Console.WriteLine("Select 0 to exit...");

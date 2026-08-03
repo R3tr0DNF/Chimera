@@ -1,3 +1,4 @@
+using System.Diagnostics.Contracts;
 using Chimera.Models;
 using Chimera.Services;
 using Chimera.Services.Conection;
@@ -15,6 +16,8 @@ namespace Chimera.Modules
 
             DualShockDevice controller = dualShock.Device!;
             HidStream stream = dualShock.Stream!;
+
+            var descriptor = controller.Device.GetReportDescriptor();
 
             Console.WriteLine();
             Console.WriteLine("Waiting for input... Press ESC to exit.");
@@ -162,6 +165,20 @@ namespace Chimera.Modules
 
                 Array.Copy(report, previousReport, report.Length);
                 reportCount++;
+            }
+
+            Console.WriteLine($"Input Report Length : {controller.Device.GetMaxInputReportLength()}");
+            Console.WriteLine($"Output Report Length : {controller.Device.GetMaxOutputReportLength()}");
+            Console.WriteLine($"Feature Report Length : {controller.Device.GetMaxFeatureReportLength()}");
+
+            Console.WriteLine("OUTPUT REPORTS");
+            Console.WriteLine();
+
+            foreach(var report1 in descriptor.OutputReports)
+            {
+                Console.WriteLine($"Report ID : {report1.ReportID}");
+                Console.WriteLine($"Length : {report1.Length}");
+                Console.WriteLine();
             }
 
             stream.Close();

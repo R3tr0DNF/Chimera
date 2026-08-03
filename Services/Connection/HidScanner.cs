@@ -31,6 +31,7 @@ namespace Chimera.Services
 
         public static DualShockDevice? FindDualShock()
         {
+            int index = 0;
             foreach (HidDevice device in DeviceList.Local.GetHidDevices())
             {
                 // Only Sony devices
@@ -45,6 +46,35 @@ namespace Chimera.Services
                     continue;
                 }
 
+                Console.WriteLine($"Interface:");
+                Console.WriteLine($"VID/PID : {device.VendorID:X4}:{device.ProductID:X4}");
+                Console.WriteLine($"Product: {SafeGet(device.GetProductName)}");
+                Console.WriteLine($"Manufacturer: {SafeGet(device.GetManufacturer)}");
+                Console.WriteLine($"Path : {device.DevicePath}");
+
+                var descriptor = device.GetReportDescriptor();
+
+                Console.WriteLine($"Input Report : {descriptor.MaxInputReportLength}");
+                Console.WriteLine($"Output Report: {descriptor.MaxOutputReportLength}");
+                Console.WriteLine($"Feature      : {descriptor.MaxFeatureReportLength}");
+                
+                Console.Write("Output IDs   : ");
+
+                foreach (var report in descriptor.OutputReports)
+                {
+                    Console.Write($"{report.ReportID} ");
+                }
+
+                Console.WriteLine();
+                Console.WriteLine();
+
+                index++;
+
+
+
+
+                
+
                 return new DualShockDevice
                 {
                     Device = device,
@@ -57,5 +87,62 @@ namespace Chimera.Services
 
             return null;
         }
+
+        //only for debuging
+        
+        public static void DebugDevices()
+        {
+            int index = 0;
+
+            foreach (HidDevice device in DeviceList.Local.GetHidDevices())
+            {
+                // Only Sony devices
+                if (device.VendorID != SONY_VENDOR_ID)
+                {
+                    continue;
+                }
+
+                // Only supported DualShock 4 
+                if (!SupportedProducts.Contains(device.ProductID))
+                {
+                    continue;
+                }
+
+                Console.WriteLine($"Interface:");
+                Console.WriteLine($"VID/PID : {device.VendorID:X4}:{device.ProductID:X4}");
+                Console.WriteLine($"Product: {SafeGet(device.GetProductName)}");
+                Console.WriteLine($"Manufacturer: {SafeGet(device.GetManufacturer)}");
+                Console.WriteLine($"Path : {device.DevicePath}");
+
+                var descriptor = device.GetReportDescriptor();
+
+                Console.WriteLine($"Input Report : {descriptor.MaxInputReportLength}");
+                Console.WriteLine($"Output Report: {descriptor.MaxOutputReportLength}");
+                Console.WriteLine($"Feature      : {descriptor.MaxFeatureReportLength}");
+                
+                Console.Write("Output IDs   : ");
+
+                foreach (var report in descriptor.OutputReports)
+                {
+                    Console.Write($"{report.ReportID} ");
+                }
+
+                foreach (var report in descriptor.Reports)
+                {
+                    Console.WriteLine($"Report ID: {report.ReportID}");
+                    Console.WriteLine($"Length: {report.Length}");
+                    Console.WriteLine($"Type: {report.ReportType}");
+                }
+                
+
+                Console.WriteLine();
+                Console.WriteLine();
+
+                index++;
+             }
+
+         }
+
+
     }
 }

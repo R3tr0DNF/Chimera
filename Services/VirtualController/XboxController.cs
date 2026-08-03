@@ -4,6 +4,9 @@ using Nefarius.ViGEm.Client;
 using Nefarius.ViGEm.Client.Targets;
 using Nefarius.ViGEm.Client.Targets.Xbox360;
 using Chimera.Services.Translator;
+using Chimera.Models.Feedback;
+using Chimera.Services.Feedback;
+using HidSharp;
 
 namespace Chimera.Services.VirtualController
 {
@@ -11,12 +14,15 @@ namespace Chimera.Services.VirtualController
     {
         private readonly ViGEmClient _client;
         private readonly IXbox360Controller _controller;
+        private readonly DualShockFeedback _feedback;
         
-        public XboxController()
+        public XboxController(HidStream stream)
         {
             _client = new ViGEmClient();
 
             _controller = _client.CreateXbox360Controller();
+            _controller.FeedbackReceived += Controller_FeedbackReceived;
+            _feedback = new DualShockFeedback(stream);
         }
 
         public void Connect()
@@ -131,6 +137,22 @@ namespace Chimera.Services.VirtualController
             _controller.SetAxisValue(Xbox360Axis.RightThumbY, AxisTranslator.ToXboxAxis(state.RightStick.Y,true));
 
         }
+
+        private void Controller_FeedbackReceived(object sender, Xbox360FeedbackReceivedEventArgs e)
+        {
+            FeedbackState state = new FeedbackState()
+            {
+                LargeMotor = e.LargeMotor,
+                SmallMotor = e.SmallMotor,
+                LedNumber = e.LedNumber
+            };
+            
+            _feedback.Update(state);
+            
+  
+        }
+
+        
 
 
 
